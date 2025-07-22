@@ -74,9 +74,12 @@
 <body>
     <div class="container">
         <h1>QUIZ GENERATOR</h1>
+        <form action="">
             <input type="text" id="topic" placeholder="Enter topic" required/>
             <input type="text" id="num_questions" placeholder="Enter number of questions" required/>
             <button id="generateBtn" onclick="generateQuiz()"><b>Generate Quiz</b></button>
+            <button type="reset" id="generateBtn" ><b>Clear</b></button>
+        </form>
         <div id="result"></div>
     </div>
 
