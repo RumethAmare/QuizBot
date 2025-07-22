@@ -3,38 +3,30 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import google.generativeai as genai
 import os
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
-# Configure Google API key from environment variable
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-if not GOOGLE_API_KEY:
-    raise ValueError("GOOGLE_API_KEY is not set in environment variables")
-
-genai.configure(api_key=GOOGLE_API_KEY)
+genai.configure(api_key="AIzaSyB62mqYjCkx7lrFwBn1YAAX2MCruaP8oWE")
 
 model = genai.GenerativeModel('gemini-2.5-pro')
 
 app = FastAPI()
 
-# Health check route
 @app.get("/")
 def read_root():
     return {"message": "AI Quiz Generator is running."}
 
-# Request model
 class QuizRequest(BaseModel):
     topic: str
     num_questions: int
 
-# Enable CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Use specific domains in production for security
+app.add_middleware(CORSMiddleware,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Quiz generation route
-@app.post("/generate_quiz/")
+
+@app.post("/generate_quiz")
 def generate_quiz(req: QuizRequest):
     prompt = f"""
     Create a {req.num_questions}-question multiple choice quiz on the topic '{req.topic}'.
