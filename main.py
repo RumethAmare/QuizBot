@@ -11,6 +11,10 @@ model = genai.GenerativeModel('gemini-2.5-pro')
 
 app = FastAPI()
 
+@app.get("/")
+def read_root():
+    return {"message": "AI Quiz Generator is running."}
+
 class QuizRequest(BaseModel):
     topic: str
     num_questions: int
