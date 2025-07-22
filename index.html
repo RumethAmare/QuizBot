@@ -111,7 +111,7 @@
             resultDiv.innerHTML = "<div class='loading'>Generating quiz...</div>";
 
             try {
-                const response = await fetch("https://quizbot-hi5v.onrender.com", {
+                const response = await fetch("https://quizbot-hi5v.onrender.com/generate_quiz/", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ topic: topic, num_questions: num })

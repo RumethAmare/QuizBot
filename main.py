@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import google.generativeai as genai
 import os
+
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 genai.configure(api_key="AIzaSyB62mqYjCkx7lrFwBn1YAAX2MCruaP8oWE")
