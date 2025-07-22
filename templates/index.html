@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Quiz Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: black;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 65%;
+            margin: 60px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 32px 24px;
+        }
+        h2 {
+            text-align: center;
+            color: #2d3a4b;
+            margin-bottom: 24px;
+        }
+        input[type="text"] {
+            width: 72.5%;
+            align-content: center;
+            padding: 12px;
+            border: 1px solid #b0b4b9;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-bottom: 16px;
+            margin-left: 12.5%;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus {
+            border-color: #4f8cff;
+            outline: none;
+        }
+        button {
+            width: 75%;
+            padding: 12px;
+            margin-left: 12.5%;
+            background: #209c26;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #0b2e66;
+        }
+        #result {
+            background: #f0f4fa;
+            border-radius: 6px;
+            padding: 16px;
+            margin-top: 20px;
+            min-height: 80px;
+            font-size: 20px;
+            color: #2d3a4b;
+            font-weight: bold;
+            white-space: pre-wrap;
+        }
+        .loading {
+            text-align: center;
+            color: #4f8cff;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; font-size: 50px;">AI Quiz Generator</h1>
+        <input type="text" id="topic" placeholder="Enter topic" required/>
+        <input type="text" id="num_questions" placeholder="Enter number of questions" required/>
+        <button id="generateBtn" onclick="generateQuiz()"><b>Generate Quiz</b></button>
+        <div id="result"></div>
+    </div>
+    <script>
+        const numInput = document.getElementById("num_questions");
+        const topicInput = document.getElementById("topic");
+        const resultDiv = document.getElementById("result");
+        const generateBtn = document.getElementById("generateBtn");
+
+        topicInput.addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                generateBtn.click();
+            }
+        });
+
+        async function generateQuiz() {
+            const topic = topicInput.value.trim();
+            if (!topic) {
+                resultDiv.innerHTML = "<span style='color:#e53e3e;'>Please enter a topic.</span>";
+                return;
+            }
+
+            const num = numInput.value.trim();
+            if (!num) {
+                resultDiv.innerHTML = "<span style='color:#e53e3e;'>Please enter the number of questions.</span>";
+                return;
+            }
+
+
+            generateBtn.disabled = true;
+            resultDiv.innerHTML = "<div class='loading'>Generating quiz...</div>";
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/generate_quiz/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ topic: topic, num_questions: num })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Server error");
+                }
+
+                const data = await response.json();
+                resultDiv.innerText = data.quiz;
+            } catch (error) {
+                resultDiv.innerHTML = "<span style='color:#e53e3e;'>Failed to generate quiz. Please try again.</span>";
+            } finally {
+                generateBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
