@@ -6,7 +6,7 @@ import os
 
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
-genai.configure(api_key="AIzaSyB62mqYjCkx7lrFwBn1YAAX2MCruaP8oWE")
+genai.configure(api_key="AIzaSyDn6WJLko--BWHcRbipzGv5ea5EGiLS-1U")
 
 model = genai.GenerativeModel('gemini-2.5-pro')
 
