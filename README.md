@@ -180,6 +180,17 @@ pytest
 
 The tests use the FastAPI ASGI app directly and mock Gemini calls, so they do not require a real API key or network access.
 
+## Deploying With Render
+
+This repo includes a Render Blueprint in `render.yaml`. In the Render Dashboard, create a new Blueprint from this repository and provide `GOOGLE_API_KEY` when prompted.
+
+The blueprint creates the FastAPI web service with:
+
+- `pip install -r requirements.txt` as the build command.
+- `uvicorn main:app --host 0.0.0.0 --port $PORT` as the start command.
+- `/` as the health check path.
+- `checksPass` auto-deploys, so Render waits for GitHub Actions to pass before deploying.
+
 ## Security Notes
 
 - Keep `GOOGLE_API_KEY` in an environment variable or local `.env` file.
