@@ -104,7 +104,7 @@ The frontend uses this deployed backend by default:
 https://quizbot-hi5v.onrender.com
 ```
 
-When deployed through the Render Blueprint, the static frontend service builds a small `config.js` file that sets the API base URL for the browser.
+The frontend reads `config.js` before starting so the API base URL can be changed without editing the app script.
 
 To point the static frontend at a local backend without editing the fetch call, add an `apiBaseUrl` query parameter:
 
@@ -195,8 +195,7 @@ The blueprint creates the FastAPI web service with:
 
 It also creates a static frontend service with:
 
-- `index.html` copied into a generated `public/` publish directory.
-- `config.js` generated during the build to point the browser at `https://quizbot-hi5v.onrender.com`.
+- `index.html` and `config.js` copied into a generated `public/` publish directory.
 - `public/` as the static publish path.
 
 ## Security Notes
