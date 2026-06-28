@@ -60,6 +60,34 @@ def test_read_status_returns_runtime_diagnostics(monkeypatch):
     }
 
 
+def test_debug_gemini_returns_success(monkeypatch):
+    monkeypatch.setenv("GEMINI_MODEL_NAME", "test-model")
+    use_model(monkeypatch, FakeModel("ok"))
+
+    response = request("GET", "/debug/gemini")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "ok": True,
+        "model": "test-model",
+        "response_preview": "ok",
+    }
+
+
+def test_debug_gemini_returns_provider_error(monkeypatch):
+    monkeypatch.setenv("GEMINI_MODEL_NAME", "test-model")
+    use_model(monkeypatch, FailingModel())
+
+    response = request("GET", "/debug/gemini")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "ok": False,
+        "model": "test-model",
+        "error": {"type": "RuntimeError", "message": "provider failed"},
+    }
+
+
 def test_generate_quiz_returns_quiz_text(monkeypatch):
     use_model(monkeypatch, FakeModel("Question 1\nAnswer: A"))
 

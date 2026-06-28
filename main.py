@@ -51,6 +51,13 @@ def get_model_name() -> str:
     return os.getenv("GEMINI_MODEL_NAME", DEFAULT_MODEL_NAME)
 
 
+def get_provider_error_detail(exc: Exception) -> dict[str, str]:
+    return {
+        "type": exc.__class__.__name__,
+        "message": str(exc)[:500],
+    }
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=get_allowed_origins(),
@@ -94,6 +101,32 @@ async def read_status():
     }
 
 
+@app.get("/debug/gemini")
+async def debug_gemini():
+    try:
+        model = get_model()
+        response = model.generate_content("Reply with exactly: ok")
+    except RuntimeError as exc:
+        return {
+            "ok": False,
+            "model": get_model_name(),
+            "error": {"type": "ConfigurationError", "message": str(exc)},
+        }
+    except Exception as exc:
+        logger.exception("Gemini debug probe failed.")
+        return {
+            "ok": False,
+            "model": get_model_name(),
+            "error": get_provider_error_detail(exc),
+        }
+
+    return {
+        "ok": True,
+        "model": get_model_name(),
+        "response_preview": getattr(response, "text", "").strip()[:100],
+    }
+
+
 @app.post("/generate_quiz")
 async def generate_quiz(req: QuizRequest):
     topic = req.topic.strip()
@@ -111,6 +144,7 @@ async def generate_quiz(req: QuizRequest):
         response = model.generate_content(prompt)
     except Exception as exc:
         logger.exception("Gemini quiz generation failed.")
+        logger.info("Gemini error detail: %s", get_provider_error_detail(exc))
         raise HTTPException(
             status_code=502,
             detail="Quiz generation failed. Please try again later.",

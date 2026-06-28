@@ -106,6 +106,12 @@ To confirm the deployed runtime configuration without exposing secrets, open:
 https://quizbot-hi5v.onrender.com/status
 ```
 
+To test whether the deployed service can reach Gemini, open:
+
+```text
+https://quizbot-hi5v.onrender.com/debug/gemini
+```
+
 ## Using the Frontend
 
 Serve `index.html` from a local static server or deployed frontend host, enter a topic, enter the number of questions, and select **Generate Quiz**.
