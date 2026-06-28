@@ -19,6 +19,7 @@ DEFAULT_CORS_ORIGINS = [
     "http://localhost:5500",
     "http://127.0.0.1:5500",
     "https://quizbot-hi5v.onrender.com",
+    "https://quizbot-frontend-hi5v.onrender.com",
 ]
 
 
