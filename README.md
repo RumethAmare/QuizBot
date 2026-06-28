@@ -5,7 +5,7 @@ QuizBot is an AI quiz generator with a FastAPI backend and a static HTML fronten
 ## Features
 
 - Generate multiple-choice quizzes from a topic.
-- Choose the number of questions to generate.
+- Choose between 1 and 20 questions.
 - Return four answer options per question.
 - Include the correct answer in the generated response.
 - Use a simple browser-based frontend in `index.html`.
@@ -27,16 +27,18 @@ QuizBot is an AI quiz generator with a FastAPI backend and a static HTML fronten
 ├── index.html
 ├── main.py
 ├── README.md
-└── requirements.txt
+├── requirements.txt
+└── tests/
 ```
 
 - `main.py` contains the FastAPI application and Gemini integration.
 - `index.html` contains the static frontend for entering a topic and question count.
 - `requirements.txt` lists the Python dependencies.
+- `tests/` contains backend tests with mocked Gemini calls.
 
 ## Setup
 
-Install the Python dependencies:
+Install the pinned Python dependencies:
 
 ```bash
 pip install -r requirements.txt
@@ -44,7 +46,7 @@ pip install -r requirements.txt
 
 ## Environment Variables
 
-The backend should read the Google Gemini API key from the `GOOGLE_API_KEY` environment variable:
+The backend reads the Google Gemini API key from the `GOOGLE_API_KEY` environment variable:
 
 ```bash
 export GOOGLE_API_KEY="your-api-key"
@@ -54,6 +56,22 @@ On Windows PowerShell:
 
 ```powershell
 $env:GOOGLE_API_KEY="your-api-key"
+```
+
+You can also create a local `.env` file:
+
+```env
+GOOGLE_API_KEY=your-api-key
+```
+
+The `.env` file is ignored by Git and should not be committed.
+
+### CORS Configuration
+
+By default, the backend allows common local development origins and the deployed Render origin. To override the list, set `CORS_ORIGINS` as a comma-separated list:
+
+```bash
+export CORS_ORIGINS="http://127.0.0.1:5500,https://your-frontend.example.com"
 ```
 
 ## Running the Backend Locally
@@ -78,18 +96,32 @@ http://127.0.0.1:8000/docs
 
 ## Using the Frontend
 
-Open `index.html` in a browser, enter a topic, enter the number of questions, and select **Generate Quiz**.
+Serve `index.html` from a local static server or deployed frontend host, enter a topic, enter the number of questions, and select **Generate Quiz**.
 
-The current frontend sends requests to the deployed Render API endpoint:
+The frontend uses this deployed backend by default:
 
 ```text
-https://quizbot-hi5v.onrender.com/generate_quiz/
+https://quizbot-hi5v.onrender.com
 ```
 
-If you want the frontend to use a local backend instead, update the `fetch` URL in `index.html` to:
+To point the static frontend at a local backend without editing the fetch call, add an `apiBaseUrl` query parameter:
 
 ```text
-http://127.0.0.1:8000/generate_quiz
+http://127.0.0.1:5500/index.html?apiBaseUrl=http://127.0.0.1:8000
+```
+
+You can also define `window.QUIZBOT_API_BASE_URL` before the app script runs:
+
+```html
+<script>
+    window.QUIZBOT_API_BASE_URL = "http://127.0.0.1:8000";
+</script>
+```
+
+Because backend CORS is restricted, avoid opening `index.html` directly from `file://` when calling the API. Use a local static server such as VS Code Live Server, or:
+
+```bash
+python3 -m http.server 5500
 ```
 
 ## API Endpoints
@@ -127,16 +159,29 @@ Response body:
 }
 ```
 
+Validation rules:
+
+- `topic` must not be empty.
+- `num_questions` must be an integer from 1 to 20.
+
 The backend currently uses the Gemini model:
 
 ```text
 gemini-2.5-pro
 ```
 
-## Known Issues and Security Notes
+## Running Tests
 
-- `main.py` currently contains a hardcoded Google API key. Remove the hardcoded key, rotate it in Google Cloud or Google AI Studio, and use only the `GOOGLE_API_KEY` environment variable.
-- CORS is currently configured with `allow_origins=["*"]`, which allows requests from any origin. For production, restrict this to trusted frontend domains.
-- The API does not currently validate that `num_questions` is positive or within a safe limit.
-- The frontend uses a text input for the question count instead of a numeric input.
-- The app does not currently include automated tests.
+Run the backend test suite with:
+
+```bash
+pytest
+```
+
+The tests use the FastAPI ASGI app directly and mock Gemini calls, so they do not require a real API key or network access.
+
+## Security Notes
+
+- Keep `GOOGLE_API_KEY` in an environment variable or local `.env` file.
+- Rotate any API key that was previously committed or shared.
+- Do not commit `.env`, virtual environments, Python cache files, or generated test caches.
