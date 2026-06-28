@@ -8,7 +8,7 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /
-    autoDeployTrigger: checksPass
+    autoDeployTrigger: commit
     envVars:
       - key: GOOGLE_API_KEY
         sync: false
@@ -23,4 +23,4 @@ services:
     branch: main
     buildCommand: mkdir -p public && cp index.html config.js public/
     staticPublishPath: public
-    autoDeployTrigger: checksPass
+    autoDeployTrigger: commit
