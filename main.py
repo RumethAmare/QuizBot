@@ -47,6 +47,10 @@ def get_allowed_origins() -> list[str]:
     ]
 
 
+def get_model_name() -> str:
+    return os.getenv("GEMINI_MODEL_NAME", DEFAULT_MODEL_NAME)
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=get_allowed_origins(),
@@ -62,8 +66,7 @@ def get_model():
         raise RuntimeError("GOOGLE_API_KEY is not configured.")
 
     genai.configure(api_key=api_key)
-    model_name = os.getenv("GEMINI_MODEL_NAME", DEFAULT_MODEL_NAME)
-    return genai.GenerativeModel(model_name)
+    return genai.GenerativeModel(get_model_name())
 
 
 def build_quiz_prompt(topic: str, num_questions: int) -> str:
@@ -80,6 +83,15 @@ Format the output cleanly and clearly.
 @app.get("/")
 async def read_root():
     return {"message": "AI Quiz Generator is running."}
+
+
+@app.get("/status")
+async def read_status():
+    return {
+        "message": "AI Quiz Generator is running.",
+        "model": get_model_name(),
+        "google_api_key_configured": bool(os.getenv("GOOGLE_API_KEY")),
+    }
 
 
 @app.post("/generate_quiz")

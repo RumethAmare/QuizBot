@@ -46,6 +46,20 @@ def test_read_root_returns_status_message():
     assert response.json() == {"message": "AI Quiz Generator is running."}
 
 
+def test_read_status_returns_runtime_diagnostics(monkeypatch):
+    monkeypatch.setenv("GOOGLE_API_KEY", "test-key")
+    monkeypatch.setenv("GEMINI_MODEL_NAME", "test-model")
+
+    response = request("GET", "/status")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "message": "AI Quiz Generator is running.",
+        "model": "test-model",
+        "google_api_key_configured": True,
+    }
+
+
 def test_generate_quiz_returns_quiz_text(monkeypatch):
     use_model(monkeypatch, FakeModel("Question 1\nAnswer: A"))
 

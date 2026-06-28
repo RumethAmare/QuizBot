@@ -100,6 +100,12 @@ You can open the generated FastAPI documentation at:
 http://127.0.0.1:8000/docs
 ```
 
+To confirm the deployed runtime configuration without exposing secrets, open:
+
+```text
+https://quizbot-hi5v.onrender.com/status
+```
+
 ## Using the Frontend
 
 Serve `index.html` from a local static server or deployed frontend host, enter a topic, enter the number of questions, and select **Generate Quiz**.
