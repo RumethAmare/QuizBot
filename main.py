@@ -14,6 +14,7 @@ load_dotenv()
 MAX_QUESTIONS = 20
 MODEL_NAME = "gemini-2.5-pro"
 DEFAULT_CORS_ORIGINS = [
+    "null",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     "http://localhost:5500",

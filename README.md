@@ -68,7 +68,7 @@ The `.env` file is ignored by Git and should not be committed.
 
 ### CORS Configuration
 
-By default, the backend allows common local development origins and the deployed Render origin. To override the list, set `CORS_ORIGINS` as a comma-separated list:
+By default, the backend allows common local development origins, direct `file://` frontend usage, and the deployed Render origins. To override the list, set `CORS_ORIGINS` as a comma-separated list:
 
 ```bash
 export CORS_ORIGINS="http://127.0.0.1:5500,https://your-frontend.example.com"
@@ -120,7 +120,7 @@ You can also define `window.QUIZBOT_API_BASE_URL` before the app script runs:
 </script>
 ```
 
-Because backend CORS is restricted, avoid opening `index.html` directly from `file://` when calling the API. Use a local static server such as VS Code Live Server, or:
+You can open `index.html` directly, or use a local static server such as VS Code Live Server:
 
 ```bash
 python3 -m http.server 5500
