@@ -1,3 +1,4 @@
+import logging
 import os
 from functools import lru_cache
 
@@ -11,8 +12,10 @@ import google.generativeai as genai
 
 load_dotenv()
 
+logger = logging.getLogger(__name__)
+
 MAX_QUESTIONS = 20
-MODEL_NAME = "gemini-2.5-pro"
+DEFAULT_MODEL_NAME = "gemini-2.5-flash"
 DEFAULT_CORS_ORIGINS = [
     "null",
     "http://localhost:8000",
@@ -59,7 +62,8 @@ def get_model():
         raise RuntimeError("GOOGLE_API_KEY is not configured.")
 
     genai.configure(api_key=api_key)
-    return genai.GenerativeModel(MODEL_NAME)
+    model_name = os.getenv("GEMINI_MODEL_NAME", DEFAULT_MODEL_NAME)
+    return genai.GenerativeModel(model_name)
 
 
 def build_quiz_prompt(topic: str, num_questions: int) -> str:
@@ -94,6 +98,7 @@ async def generate_quiz(req: QuizRequest):
     try:
         response = model.generate_content(prompt)
     except Exception as exc:
+        logger.exception("Gemini quiz generation failed.")
         raise HTTPException(
             status_code=502,
             detail="Quiz generation failed. Please try again later.",

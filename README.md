@@ -66,6 +66,12 @@ GOOGLE_API_KEY=your-api-key
 
 The `.env` file is ignored by Git and should not be committed.
 
+The Gemini model defaults to `gemini-2.5-flash`. To use a different model, set `GEMINI_MODEL_NAME`:
+
+```bash
+export GEMINI_MODEL_NAME="gemini-2.5-flash"
+```
+
 ### CORS Configuration
 
 By default, the backend allows common local development origins, direct `file://` frontend usage, and the deployed Render origins. To override the list, set `CORS_ORIGINS` as a comma-separated list:
@@ -166,10 +172,10 @@ Validation rules:
 - `topic` must not be empty.
 - `num_questions` must be an integer from 1 to 20.
 
-The backend currently uses the Gemini model:
+The backend defaults to this Gemini model:
 
 ```text
-gemini-2.5-pro
+gemini-2.5-flash
 ```
 
 ## Running Tests
