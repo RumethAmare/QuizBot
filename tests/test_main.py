@@ -35,7 +35,6 @@ def request(method, url, **kwargs):
 
 
 def use_model(monkeypatch, model):
-    main.get_model.cache_clear()
     monkeypatch.setattr(main, "get_model", lambda: model)
 
 
@@ -57,6 +56,7 @@ def test_read_status_returns_runtime_diagnostics(monkeypatch):
         "message": "AI Quiz Generator is running.",
         "model": "test-model",
         "google_api_key_configured": True,
+        "google_api_key_fingerprint": main.get_api_key_fingerprint(),
     }
 
 
@@ -127,7 +127,6 @@ def test_generate_quiz_rejects_invalid_question_count(monkeypatch):
 
 
 def test_generate_quiz_returns_controlled_error_without_api_key(monkeypatch):
-    main.get_model.cache_clear()
     monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
 
     response = request(

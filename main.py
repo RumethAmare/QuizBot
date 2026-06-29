@@ -1,6 +1,6 @@
+import hashlib
 import logging
 import os
-from functools import lru_cache
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
@@ -51,6 +51,14 @@ def get_model_name() -> str:
     return os.getenv("GEMINI_MODEL_NAME", DEFAULT_MODEL_NAME)
 
 
+def get_api_key_fingerprint() -> str | None:
+    api_key = os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        return None
+
+    return hashlib.sha256(api_key.encode("utf-8")).hexdigest()[:12]
+
+
 def get_provider_error_detail(exc: Exception) -> dict[str, str]:
     return {
         "type": exc.__class__.__name__,
@@ -66,7 +74,6 @@ app.add_middleware(
 )
 
 
-@lru_cache
 def get_model():
     api_key = os.getenv("GOOGLE_API_KEY")
     if not api_key:
@@ -98,6 +105,7 @@ async def read_status():
         "message": "AI Quiz Generator is running.",
         "model": get_model_name(),
         "google_api_key_configured": bool(os.getenv("GOOGLE_API_KEY")),
+        "google_api_key_fingerprint": get_api_key_fingerprint(),
     }
 
 

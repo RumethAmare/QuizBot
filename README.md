@@ -106,6 +106,8 @@ To confirm the deployed runtime configuration without exposing secrets, open:
 https://quizbot-hi5v.onrender.com/status
 ```
 
+The `google_api_key_fingerprint` value is a short one-way hash prefix. It lets you confirm that Render picked up a changed API key without revealing the key.
+
 To test whether the deployed service can reach Gemini, open:
 
 ```text
