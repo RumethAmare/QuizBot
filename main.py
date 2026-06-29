@@ -1,4 +1,5 @@
 import hashlib
+import json
 import logging
 import os
 
@@ -16,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 MAX_QUESTIONS = 20
 DEFAULT_MODEL_NAME = "gemini-2.5-flash"
+OPTION_KEYS = ["A", "B", "C", "D"]
 DEFAULT_CORS_ORIGINS = [
     "null",
     "http://localhost:8000",
@@ -85,13 +87,94 @@ def get_model():
 
 def build_quiz_prompt(topic: str, num_questions: int) -> str:
     return f"""
-Create a {num_questions}-question multiple choice quiz on the topic '{topic}'.
-For each question, provide:
-- The question
-- 4 options labeled A, B, C, D
-- The correct answer at the end in this format: 'Answer: X'
-Format the output cleanly and clearly.
+Create a {num_questions}-question multiple choice quiz on the topic "{topic}".
+Return strict JSON only. Do not include markdown, code fences, or commentary.
+The JSON must use exactly this shape:
+{{
+  "questions": [
+    {{
+      "question": "Question text",
+      "options": {{
+        "A": "First option",
+        "B": "Second option",
+        "C": "Third option",
+        "D": "Fourth option"
+      }},
+      "answer": "A"
+    }}
+  ]
+}}
+Rules:
+- Include exactly {num_questions} questions.
+- Each question must have exactly four options with keys A, B, C, and D.
+- The answer must be one of A, B, C, or D.
+- Do not include the correct answer inside the question text.
 """
+
+
+def strip_json_fence(text: str) -> str:
+    stripped = text.strip()
+    if stripped.startswith("```"):
+        lines = stripped.splitlines()
+        if lines and lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].startswith("```"):
+            lines = lines[:-1]
+        return "\n".join(lines).strip()
+    return stripped
+
+
+def parse_quiz_response(text: str, expected_count: int) -> dict:
+    try:
+        payload = json.loads(strip_json_fence(text))
+    except json.JSONDecodeError as exc:
+        raise ValueError("Gemini returned malformed quiz JSON.") from exc
+
+    questions = payload.get("questions") if isinstance(payload, dict) else None
+    if not isinstance(questions, list) or len(questions) != expected_count:
+        raise ValueError("Gemini returned an invalid question list.")
+
+    validated_questions = []
+    for question_item in questions:
+        if not isinstance(question_item, dict):
+            raise ValueError("Gemini returned an invalid question item.")
+
+        question_text = question_item.get("question")
+        options = question_item.get("options")
+        answer = question_item.get("answer")
+
+        if not isinstance(question_text, str) or not question_text.strip():
+            raise ValueError("Gemini returned a question without text.")
+
+        if not isinstance(options, dict):
+            raise ValueError("Gemini returned a question without options.")
+
+        normalized_options = {
+            str(key).upper(): value
+            for key, value in options.items()
+        }
+        if sorted(normalized_options.keys()) != OPTION_KEYS:
+            raise ValueError("Gemini returned invalid option keys.")
+
+        for option_key in OPTION_KEYS:
+            option_text = normalized_options[option_key]
+            if not isinstance(option_text, str) or not option_text.strip():
+                raise ValueError("Gemini returned an empty option.")
+            normalized_options[option_key] = option_text.strip()
+
+        normalized_answer = str(answer).upper() if answer is not None else ""
+        if normalized_answer not in OPTION_KEYS:
+            raise ValueError("Gemini returned an invalid answer.")
+
+        validated_questions.append(
+            {
+                "question": question_text.strip(),
+                "options": normalized_options,
+                "answer": normalized_answer,
+            }
+        )
+
+    return {"questions": validated_questions}
 
 
 @app.get("/")
@@ -113,13 +196,15 @@ async def read_status():
 async def debug_gemini():
     try:
         model = get_model()
-        response = model.generate_content("Reply with exactly: ok")
     except RuntimeError as exc:
         return {
             "ok": False,
             "model": get_model_name(),
             "error": {"type": "ConfigurationError", "message": str(exc)},
         }
+
+    try:
+        response = model.generate_content("Reply with exactly: ok")
     except Exception as exc:
         logger.exception("Gemini debug probe failed.")
         return {
@@ -165,4 +250,11 @@ async def generate_quiz(req: QuizRequest):
             detail="Quiz generation returned an empty response.",
         )
 
-    return {"quiz": quiz_text}
+    try:
+        return parse_quiz_response(quiz_text, req.num_questions)
+    except ValueError as exc:
+        logger.info("Gemini structured quiz validation failed: %s", exc)
+        raise HTTPException(
+            status_code=502,
+            detail="Quiz generation returned an invalid quiz format.",
+        ) from exc

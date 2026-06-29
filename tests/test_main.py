@@ -1,4 +1,5 @@
 import asyncio
+import json
 
 import httpx
 
@@ -88,17 +89,82 @@ def test_debug_gemini_returns_provider_error(monkeypatch):
     }
 
 
-def test_generate_quiz_returns_quiz_text(monkeypatch):
-    use_model(monkeypatch, FakeModel("Question 1\nAnswer: A"))
+VALID_QUIZ = {
+    "questions": [
+        {
+            "question": "What does HTML stand for?",
+            "options": {
+                "A": "HyperText Markup Language",
+                "B": "HighText Machine Language",
+                "C": "HyperTool Multi Language",
+                "D": "Home Tool Markup Language",
+            },
+            "answer": "A",
+        }
+    ]
+}
+
+
+def test_generate_quiz_returns_structured_questions(monkeypatch):
+    use_model(monkeypatch, FakeModel(json.dumps(VALID_QUIZ)))
 
     response = request(
         "POST",
         "/generate_quiz",
-        json={"topic": "Python basics", "num_questions": 2},
+        json={"topic": "HTML basics", "num_questions": 1},
     )
 
     assert response.status_code == 200
-    assert response.json() == {"quiz": "Question 1\nAnswer: A"}
+    assert response.json() == VALID_QUIZ
+
+
+def test_generate_quiz_rejects_malformed_provider_json(monkeypatch):
+    use_model(monkeypatch, FakeModel("not json"))
+
+    response = request(
+        "POST",
+        "/generate_quiz",
+        json={"topic": "Python basics", "num_questions": 1},
+    )
+
+    assert response.status_code == 502
+    assert response.json()["detail"] == "Quiz generation returned an invalid quiz format."
+
+
+def test_generate_quiz_rejects_missing_question_fields(monkeypatch):
+    invalid_quiz = {"questions": [{"question": "Incomplete"}]}
+    use_model(monkeypatch, FakeModel(json.dumps(invalid_quiz)))
+
+    response = request(
+        "POST",
+        "/generate_quiz",
+        json={"topic": "Python basics", "num_questions": 1},
+    )
+
+    assert response.status_code == 502
+    assert response.json()["detail"] == "Quiz generation returned an invalid quiz format."
+
+
+def test_generate_quiz_rejects_invalid_answer_letter(monkeypatch):
+    invalid_quiz = {
+        "questions": [
+            {
+                "question": "Pick one.",
+                "options": {"A": "One", "B": "Two", "C": "Three", "D": "Four"},
+                "answer": "E",
+            }
+        ]
+    }
+    use_model(monkeypatch, FakeModel(json.dumps(invalid_quiz)))
+
+    response = request(
+        "POST",
+        "/generate_quiz",
+        json={"topic": "Python basics", "num_questions": 1},
+    )
+
+    assert response.status_code == 502
+    assert response.json()["detail"] == "Quiz generation returned an invalid quiz format."
 
 
 def test_generate_quiz_rejects_empty_topic(monkeypatch):

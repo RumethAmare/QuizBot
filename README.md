@@ -1,13 +1,13 @@
 # QuizBot
 
-QuizBot is an AI quiz generator with a FastAPI backend and a static HTML frontend. The backend sends quiz-generation prompts to Google Gemini and returns a multiple-choice quiz for the requested topic and number of questions.
+QuizBot is an AI quiz generator with a FastAPI backend and a static HTML frontend. The backend sends quiz-generation prompts to Google Gemini and returns structured multiple-choice questions that the frontend renders as an interactive quiz.
 
 ## Features
 
 - Generate multiple-choice quizzes from a topic.
 - Choose between 1 and 20 questions.
-- Return four answer options per question.
-- Include the correct answer in the generated response.
+- Select one of four answer options per question.
+- See immediate correct/incorrect feedback with the correct answer revealed.
 - Use a simple browser-based frontend in `index.html`.
 - Expose a small FastAPI API for quiz generation.
 
@@ -116,7 +116,7 @@ https://quizbot-api-v2.onrender.com/debug/gemini
 
 ## Using the Frontend
 
-Serve `index.html` from a local static server or deployed frontend host, enter a topic, enter the number of questions, and select **Generate Quiz**.
+Serve `index.html` from a local static server or deployed frontend host, enter a topic, enter the number of questions, and select **Generate**. After the quiz appears, choose an option for each question to get immediate feedback and a running score.
 
 The frontend uses this deployed backend by default:
 
@@ -162,7 +162,7 @@ Example response:
 
 ### `POST /generate_quiz`
 
-Generates a multiple-choice quiz for the requested topic.
+Generates a structured multiple-choice quiz for the requested topic.
 
 Request body:
 
@@ -177,7 +177,18 @@ Response body:
 
 ```json
 {
-  "quiz": "Generated quiz text..."
+  "questions": [
+    {
+      "question": "What does HTML stand for?",
+      "options": {
+        "A": "HyperText Markup Language",
+        "B": "HighText Machine Language",
+        "C": "HyperTool Multi Language",
+        "D": "Home Tool Markup Language"
+      },
+      "answer": "A"
+    }
+  ]
 }
 ```
 
@@ -211,7 +222,7 @@ The blueprint creates the FastAPI web service with:
 - `pip install -r requirements.txt` as the build command.
 - `uvicorn main:app --host 0.0.0.0 --port $PORT` as the start command.
 - `/` as the health check path.
-- `checksPass` auto-deploys, so Render waits for GitHub Actions to pass before deploying.
+- `commit` auto-deploys, so Render deploys each pushed commit.
 
 It also creates a static frontend service with:
 
