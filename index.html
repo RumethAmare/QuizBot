@@ -10,67 +10,141 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg: #f7f8fb;
+            --surface: #ffffff;
+            --surface-muted: #f1f5f9;
+            --text: #172033;
+            --muted: #64748b;
+            --border: #d8dee8;
+            --accent: #1d4ed8;
+            --accent-hover: #1e40af;
+            --success: #15803d;
+            --success-hover: #166534;
+            --danger: #b91c1c;
+            --danger-bg: #fef2f2;
+            --shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+        }
+
         body {
-            font-family: "Segoe UI", Arial, sans-serif;
-            background: #111827;
-            color: #1f2937;
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            background:
+                linear-gradient(180deg, #eef2f7 0%, var(--bg) 34%, #edf7f1 100%);
+            color: var(--text);
             margin: 0;
             min-height: 100vh;
-            padding: 24px;
+            padding: 32px 18px;
         }
 
         .container {
-            width: min(720px, 100%);
-            margin: 48px auto;
-            background: #ffffff;
+            width: min(980px, 100%);
+            margin: 0 auto;
+        }
+
+        .app-shell {
+            background: var(--surface);
             border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
-            padding: 32px 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(216, 222, 232, 0.8);
+            overflow: hidden;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 28px 32px;
+            border-bottom: 1px solid var(--border);
+            background: #ffffff;
         }
 
         h1 {
-            text-align: center;
-            color: #1f2937;
-            margin: 0 0 24px;
-            font-size: 36px;
+            color: var(--text);
+            margin: 0;
+            font-size: 30px;
+            line-height: 1.1;
             letter-spacing: 0;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #14532d;
+            background: #dcfce7;
+            border: 1px solid #bbf7d0;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 8px 12px;
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--success);
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(280px, 340px) 1fr;
+            min-height: 540px;
+        }
+
+        .controls {
+            padding: 28px;
+            border-right: 1px solid var(--border);
+            background: #fbfcfe;
         }
 
         form {
             display: grid;
-            gap: 14px;
+            gap: 18px;
         }
 
         label {
             display: grid;
-            gap: 6px;
+            gap: 8px;
+            color: #334155;
+            font-size: 14px;
             font-weight: 700;
         }
 
         input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #b0b4b9;
+            min-height: 46px;
+            padding: 12px 14px;
+            color: var(--text);
+            background: #ffffff;
+            border: 1px solid var(--border);
             border-radius: 6px;
             font-size: 16px;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
         }
 
         input:focus {
-            border-color: #2563eb;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.12);
             outline: none;
+        }
+
+        input::placeholder {
+            color: #94a3b8;
         }
 
         .actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         button {
             width: 100%;
-            min-height: 44px;
+            min-height: 46px;
             padding: 12px;
             color: #ffffff;
             border: none;
@@ -78,7 +152,7 @@
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            transition: background 0.2s, opacity 0.2s;
+            transition: background 0.2s, opacity 0.2s, transform 0.2s, box-shadow 0.2s;
         }
 
         button:disabled {
@@ -86,83 +160,190 @@
             opacity: 0.65;
         }
 
+        button:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
         #generateBtn {
-            background: #15803d;
+            background: var(--success);
+            box-shadow: 0 10px 22px rgba(21, 128, 61, 0.2);
         }
 
         #generateBtn:hover:not(:disabled) {
-            background: #166534;
+            background: var(--success-hover);
         }
 
         #resetBtn {
-            background: #b91c1c;
+            color: var(--danger);
+            background: var(--danger-bg);
+            border: 1px solid #fecaca;
         }
 
         #resetBtn:hover {
-            background: #991b1b;
+            background: #fee2e2;
+        }
+
+        .result-panel {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            min-width: 0;
+            background: #ffffff;
+        }
+
+        .result-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-title {
+            margin: 0;
+            color: var(--text);
+            font-size: 18px;
+            line-height: 1.2;
+        }
+
+        .result-meta {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 700;
         }
 
         #result {
-            background: #f3f4f6;
+            background: var(--surface-muted);
             border-radius: 6px;
-            padding: 16px;
-            margin-top: 20px;
-            min-height: 80px;
-            font-size: 18px;
-            color: #1f2937;
-            white-space: pre-wrap;
+            border: 1px solid #e2e8f0;
+            padding: 22px;
+            margin: 24px;
+            min-height: 360px;
+            color: var(--text);
+            font-size: 17px;
+            line-height: 1.45;
+            overflow-wrap: anywhere;
+        }
+
+        #result strong {
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        #result em {
+            color: #334155;
+        }
+
+        .empty-state {
+            height: 100%;
+            min-height: 310px;
+            display: grid;
+            place-items: center;
+            color: var(--muted);
+            text-align: center;
+            font-weight: 700;
         }
 
         .loading {
-            text-align: center;
-            color: #2563eb;
+            min-height: 310px;
+            display: grid;
+            place-items: center;
+            color: var(--accent);
             font-size: 16px;
             font-weight: 700;
         }
 
         .error {
-            color: #b91c1c;
+            display: block;
+            color: var(--danger);
+            background: var(--danger-bg);
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            padding: 14px 16px;
             font-weight: 700;
         }
 
-        @media (max-width: 560px) {
+        @media (max-width: 760px) {
             body {
                 padding: 12px;
             }
 
-            .container {
-                margin: 18px auto;
-                padding: 24px 16px;
+            .app-header {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 22px 18px;
             }
 
             h1 {
-                font-size: 28px;
+                font-size: 26px;
+            }
+
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                border-right: 0;
+                border-bottom: 1px solid var(--border);
+                padding: 20px 18px;
             }
 
             .actions {
                 grid-template-columns: 1fr;
+            }
+
+            .result-toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 18px;
+            }
+
+            #result {
+                margin: 18px;
+                min-height: 300px;
+                padding: 18px;
+                font-size: 16px;
             }
         }
     </style>
 </head>
 <body>
     <main class="container">
-        <h1>Quiz Generator</h1>
-        <form id="quizForm">
-            <label for="topic">
-                Topic
-                <input type="text" id="topic" placeholder="Enter topic" required>
-            </label>
-            <label for="num_questions">
-                Number of questions
-                <input type="number" id="num_questions" min="1" max="20" step="1" placeholder="Enter number of questions" required>
-            </label>
-            <div class="actions">
-                <button type="submit" id="generateBtn">Generate Quiz</button>
-                <button type="reset" id="resetBtn">Clear</button>
+        <section class="app-shell">
+            <header class="app-header">
+                <h1>Quiz Generator</h1>
+                <div class="status-pill"><span class="status-dot"></span>Gemini ready</div>
+            </header>
+
+            <div class="workspace">
+                <section class="controls">
+                    <form id="quizForm">
+                        <label for="topic">
+                            Topic
+                            <input type="text" id="topic" placeholder="History, biology, Python..." required>
+                        </label>
+                        <label for="num_questions">
+                            Questions
+                            <input type="number" id="num_questions" min="1" max="20" step="1" placeholder="1-20" required>
+                        </label>
+                        <div class="actions">
+                            <button type="submit" id="generateBtn">Generate</button>
+                            <button type="reset" id="resetBtn">Clear</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="result-panel">
+                    <div class="result-toolbar">
+                        <h2 class="result-title">Generated Quiz</h2>
+                        <span class="result-meta" id="resultMeta">Waiting</span>
+                    </div>
+                    <div id="result" aria-live="polite">
+                        <div class="empty-state">Your quiz will appear here.</div>
+                    </div>
+                </section>
             </div>
-        </form>
-        <div id="result" aria-live="polite"></div>
+        </section>
     </main>
 
     <script src="config.js"></script>
@@ -175,10 +356,12 @@
         const numInput = document.getElementById("num_questions");
         const topicInput = document.getElementById("topic");
         const resultDiv = document.getElementById("result");
+        const resultMeta = document.getElementById("resultMeta");
         const generateBtn = document.getElementById("generateBtn");
 
         function showError(message) {
-            resultDiv.innerHTML = `<span class="error">${message}</span>`;
+            resultDiv.innerHTML = `<span class="error">${escapeHtml(message)}</span>`;
+            resultMeta.textContent = "Needs attention";
         }
 
         function escapeHtml(text) {
@@ -199,6 +382,7 @@
             generateBtn.disabled = isLoading;
             if (isLoading) {
                 resultDiv.innerHTML = "<div class='loading'>Generating quiz...</div>";
+                resultMeta.textContent = "Working";
             }
         }
 
@@ -215,7 +399,8 @@
         }
 
         form.addEventListener("reset", function() {
-            resultDiv.textContent = "";
+            resultMeta.textContent = "Waiting";
+            resultDiv.innerHTML = "<div class='empty-state'>Your quiz will appear here.</div>";
         });
 
         form.addEventListener("submit", async function(event) {
@@ -252,6 +437,7 @@
                 }
 
                 resultDiv.innerHTML = renderQuizText(data.quiz || "No quiz content was returned.");
+                resultMeta.textContent = `${numQuestions} question${numQuestions === 1 ? "" : "s"}`;
             } catch (error) {
                 console.error("Request failed:", error);
                 showError(error.message || "Quiz generation failed. Please try again.");
