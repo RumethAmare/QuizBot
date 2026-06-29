@@ -103,7 +103,7 @@ http://127.0.0.1:8000/docs
 To confirm the deployed runtime configuration without exposing secrets, open:
 
 ```text
-https://quizbot-hi5v.onrender.com/status
+https://quizbot-api-v2.onrender.com/status
 ```
 
 The `google_api_key_fingerprint` value is a short one-way hash prefix. It lets you confirm that Render picked up a changed API key without revealing the key.
@@ -111,7 +111,7 @@ The `google_api_key_fingerprint` value is a short one-way hash prefix. It lets y
 To test whether the deployed service can reach Gemini, open:
 
 ```text
-https://quizbot-hi5v.onrender.com/debug/gemini
+https://quizbot-api-v2.onrender.com/debug/gemini
 ```
 
 ## Using the Frontend
@@ -121,7 +121,7 @@ Serve `index.html` from a local static server or deployed frontend host, enter a
 The frontend uses this deployed backend by default:
 
 ```text
-https://quizbot-hi5v.onrender.com
+https://quizbot-api-v2.onrender.com
 ```
 
 The frontend reads `config.js` before starting so the API base URL can be changed without editing the app script.
