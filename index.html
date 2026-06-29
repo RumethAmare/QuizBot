@@ -181,6 +181,20 @@
             resultDiv.innerHTML = `<span class="error">${message}</span>`;
         }
 
+        function escapeHtml(text) {
+            const element = document.createElement("div");
+            element.textContent = text;
+            return element.innerHTML;
+        }
+
+        function renderQuizText(text) {
+            return escapeHtml(text)
+                .replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>")
+                .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+                .replace(/\*(.+?)\*/g, "<em>$1</em>")
+                .replace(/\n/g, "<br>");
+        }
+
         function setLoading(isLoading) {
             generateBtn.disabled = isLoading;
             if (isLoading) {
@@ -237,7 +251,7 @@
                     throw new Error(getApiMessage(data));
                 }
 
-                resultDiv.textContent = data.quiz || "No quiz content was returned.";
+                resultDiv.innerHTML = renderQuizText(data.quiz || "No quiz content was returned.");
             } catch (error) {
                 console.error("Request failed:", error);
                 showError(error.message || "Quiz generation failed. Please try again.");
